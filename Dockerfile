@@ -5,6 +5,6 @@ RUN apt install wget -y
 ARG SRC_DIR=/tmp/javaapp
 RUN mkdir -p $SRC_DIR
 WORKDIR $SRC_DIR
-COPY target/*.jar spring-petclinic.jar
+COPY target/spring-petclinic-2.6.0-SNAPSHOT.jar spring-petclinic.jar
 EXPOSE 8080
 CMD ["java", "-jar", "spring-petclinic.jar"]
