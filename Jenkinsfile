@@ -1,56 +1,31 @@
-pipeline {
-    agent any
-	tools {
-		maven 'Maven3.8.6'
-	}
-	
-	   
-        stages{
-
-              stage('Quality Gate Status Check'){
-		      agent {
+pipeline{
+    agent any 
+    environment{
+        VERSION = "${env.BUILD_ID}"
+    }
+    stages{
+        stage("sonar quality check"){
+            agent {
                 docker {
-                 image 'maven:3-openjdk-11'
-
+                    image 'openjdk:11'
                 }
             }
-                  steps{
-                      script{
-			      withSonarQubeEnv('sonarserver') { 
-			      sh "mvn clean sonar:sonar"
-                       	     	}
-			      timeout(time: 1, unit: 'HOURS') {
-			      def qg = waitForQualityGate()
-				      if (qg.status != 'OK') {
-					   error "Pipeline aborted due to quality gate failure: ${qg.status}"
-				      }
-                    		}
-		    	   
-                 	}
-               	 }  
-              }	
-			       	     	         
-    
-	    stage('Scm Checkout') {
-		    steps {
-			    checkout scm
-		    }
-	    }
-	    
-	    stage('Build') {
-		    steps {
-			    sh 'mvn clean package'
-		    }
-	    }
-	    
-	    stage('Test') {
-		    steps {
-			    echo "Testing..."
-			    sh 'mvn test'
-		    }
-	    }
+            steps{
+                script{
+                    withSonarQubeEnv(credentialsId: 'sonar-token') {
+                            sh 'chmod +x gradlew'
+                            sh './gradlew sonarqube'
+                    }
 
-	
-	    
+                          timeout(5) {
+                      def qg = waitForQualityGate()
+                      if (qg.status != 'OK') {
+                           error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                      }
+                    }
+
+                }  
             }
+        }
 	}
+}
