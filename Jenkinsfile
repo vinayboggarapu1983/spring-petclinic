@@ -1,17 +1,10 @@
 pipeline {
     agent any
 	tools {
-		maven 'Maven'
+		maven 'Maven3.8.6'
 	}
 	
-	environment {
-		PROJECT_ID = 'santu0908-365206'
-                CLUSTER_NAME = 'autopilot-cluster-1'
-                LOCATION = 'us-central1'
-                CREDENTIALS_ID = 'kubernetes'		
-	}
-	
-        
+	   
         stages{
 
               stage('Quality Gate Status Check'){
